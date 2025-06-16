@@ -2,11 +2,11 @@ function interactiveRoom(vertices, roomCentre, height, x, y)
     % Function to interactively place source and listener in a 3D room
     assignin('base', 'placement_confirmed', false);
 
-    % === Initial positions for markers ===
+    % Initial positions for markers
     source_pos = roomCentre + [1, 0, 0];
     listener_pos = roomCentre - [1, 0, 0];
 
-    % === Plot initial room ===
+    % Plot room
     figure('Position', [100 100 1000 700]);
     hold on;
     axis equal;
@@ -37,19 +37,19 @@ function interactiveRoom(vertices, roomCentre, height, x, y)
     patch('Vertices', vertices, 'Faces', (1:num_points) + num_points, ...
           'FaceColor', [0.6 0.7 1], 'EdgeColor', 'k', 'FaceAlpha', shape_opacity);
 
-    % === Plot initial source/listener markers ===
+    % Plot initial source/listener markers
     source_marker = plot3(source_pos(1), source_pos(2), source_pos(3), 'ro', ...
                           'MarkerSize', 10, 'MarkerFaceColor', 'r');
     listener_marker = plot3(listener_pos(1), listener_pos(2), listener_pos(3), 'bs', ...
                             'MarkerSize', 10, 'MarkerFaceColor', 'b');
 
-    % === Define bounds ===
+    % Define bounds
     margin = 0.1;
     xlim_room = [min(x)-margin, max(x)+margin];
     ylim_room = [min(y)-margin, max(y)+margin];
     zlim_room = [0, height];
 
-    % === Create UI panel for sliders ===
+    % Create UI panel for sliders
     panel = uipanel('Title','Source & Listener Position','FontSize',12,...
         'BackgroundColor','white','Position',[.75 .05 .2 .9]);
 
@@ -62,7 +62,7 @@ function interactiveRoom(vertices, roomCentre, height, x, y)
     vertical_gap = 0.015;
     block_height = label_height + slider_height + vertical_gap;
     
-    % Place all 6 sliders starting from here
+    % Place sliders
     start_y = 0.92;
 
     for ei = 1:2
@@ -73,7 +73,7 @@ function interactiveRoom(vertices, roomCentre, height, x, y)
     
             % Calculate positions
             y_slider = start_y - idx * block_height;
-            y_label = y_slider + slider_height + 0.005;  % Slight offset above slider
+            y_label = y_slider + slider_height + 0.005;
     
             % Label
             uicontrol(panel, 'Style', 'text', ...
@@ -95,15 +95,12 @@ function interactiveRoom(vertices, roomCentre, height, x, y)
         end
     end
 
-% Confirm button nicely spaced under sliders
-% Confirm button nicely spaced under sliders
 uicontrol('Parent', panel, 'Style', 'pushbutton', 'String', 'Confirm', ...
     'Units', 'normalized', ...
     'Position', [0.1, 0.02, 0.8, 0.05], ...
     'FontSize', 10, ...
     'Callback', @(src,~) confirmAndClose());
 
-% === Add this nested function ===
     function confirmAndClose()
         updatePin();  % Refresh current positions
         assignin('base', 'placement_confirmed', true);
@@ -121,10 +118,9 @@ uicontrol('Parent', panel, 'Style', 'pushbutton', 'String', 'Confirm', ...
         if ~isSourceInside || ~isListenerInside
             msgbox('Error: Source or Listener is outside the room perimeter. Please reposition.', ...
                    'Invalid Placement', 'error');
-            return;  % Do not close GUI or resume script
+            return;
         end
 
-        % All valid — resume script and close GUI
         uiresume(gcf);
         close(gcf);
     end
@@ -133,7 +129,6 @@ uicontrol('Parent', panel, 'Style', 'pushbutton', 'String', 'Confirm', ...
 
     updatePin();  % Initial update
 
-    % === Nested callback ===
     function updatePin()
         sx = sliders.Source.X.Value;
         sy = sliders.Source.Y.Value;
@@ -145,7 +140,7 @@ uicontrol('Parent', panel, 'Style', 'pushbutton', 'String', 'Confirm', ...
         set(source_marker, 'XData', sx, 'YData', sy, 'ZData', sz);
         set(listener_marker, 'XData', lx, 'YData', ly, 'ZData', lz);
 
-        % Export to base workspace
+        % Export to workspace
         assignin('base', 'final_source_position', [sx, sy, sz]);
         assignin('base', 'final_listener_position', [lx, ly, lz]);
     end
